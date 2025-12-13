@@ -221,64 +221,85 @@ class TimeTrackerApp:
     def cmd_stats(self) -> None:
         """Zeige Statistiken für alle Apps."""
         from datetime import datetime
-        
+
         print(f"\n{Messages.SEPARATOR}")
         print(f"  {Messages.HEADER_STATS}")
         print(f"{Messages.SEPARATOR}\n")
-        
+
         config = self.load_config()
         if not config:
             print(Messages.MSG_ERROR_NO_CONFIG)
             return
-        
+
         try:
-            db = Database(config['db_path'])
-            
+            db = Database(config["db_path"])
+
             # Zeige Stats für jede App
-            for i, app in enumerate(config['target_apps']):
+            for i, app in enumerate(config["target_apps"]):
                 if i > 0:
                     print(f"\n{'─'*60}")
-                
+
                 print(f"📱 {app.upper()}")
                 print(f"{'─'*60}")
-                
+
                 # ========== HEUTE ==========
                 today_stats = db.get_stats_today(app)
                 print(f"\n{Messages.STATS_TODAY.format(datetime.now().strftime('%d.%m.%Y'))}")
-                
+
                 if today_stats and today_stats[0]:
-                    opens, total_sec, avg_sec = today_stats
-                    hours = total_sec // 3600
-                    minutes = (total_sec % 3600) // 60
-                    seconds = total_sec % 60
-                    avg_min = int(avg_sec // 60) if avg_sec else 0
-                    avg_sec_remainder = int(avg_sec % 60) if avg_sec else 0
-                    
+                    opens, focus_sec, total_sec, avg_focus_sec = today_stats
+
+                    focus_sec = focus_sec or 0
+                    total_sec = total_sec or 0
+                    avg_focus_sec = avg_focus_sec or 0
+
+                    f_h = focus_sec // 3600
+                    f_m = (focus_sec % 3600) // 60
+                    f_s = focus_sec % 60
+
+                    t_h = total_sec // 3600
+                    t_m = (total_sec % 3600) // 60
+                    t_s = total_sec % 60
+
+                    avg_m = int(avg_focus_sec // 60)
+                    avg_s = int(avg_focus_sec % 60)
+
                     print(Messages.STATS_OPENS.format(opens))
-                    print(Messages.STATS_TIME.format(hours, minutes, seconds))
-                    print(Messages.STATS_AVG.format(avg_min, avg_sec_remainder))
+                    print(f"• Fokuszeit: {f_h}h {f_m}m {f_s}s")
+                    print(f"• Gesamtzeit: {t_h}h {t_m}m {t_s}s")
+                    print(f"• Ø Fokus/Öffnung: {avg_m}m {avg_s}s")
                 else:
                     print(Messages.STATS_NO_DATA)
-                
+
                 # ========== GESAMT ==========
                 all_stats = db.get_stats_all_time(app)
                 print(f"\n{Messages.STATS_ALL}")
-                
+
                 if all_stats and all_stats[0]:
-                    opens, total_sec, first_use = all_stats
-                    hours = total_sec // 3600
-                    minutes = (total_sec % 3600) // 60
-                    seconds = total_sec % 60
-                    
+                    opens, focus_sec, total_sec, first_use = all_stats
+
+                    focus_sec = focus_sec or 0
+                    total_sec = total_sec or 0
+
+                    f_h = focus_sec // 3600
+                    f_m = (focus_sec % 3600) // 60
+                    f_s = focus_sec % 60
+
+                    t_h = total_sec // 3600
+                    t_m = (total_sec % 3600) // 60
+                    t_s = total_sec % 60
+
                     print(Messages.STATS_OPENS.format(opens))
-                    print(Messages.STATS_TIME.format(hours, minutes, seconds))
+                    print(f"• Fokuszeit (gesamt): {f_h}h {f_m}m {f_s}s")
+                    print(f"• Gesamtzeit (gesamt): {t_h}h {t_m}m {t_s}s")
                     print(Messages.STATS_FIRST.format(first_use[:10]))
                 else:
                     print(Messages.STATS_NO_DATA)
-        
+
         except Exception as e:
             print(f"{Messages.MSG_ERROR_GENERIC.format(e)}")
             logger.error(f"Fehler beim Abrufen der Statistiken: {e}")
+
     
     def cmd_settings(self) -> None:
         """Bearbeite Settings (App-Management + Autostart)."""
