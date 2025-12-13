@@ -1,0 +1,427 @@
+📋 TimeTracker - Komplette Dokumentation
+🏗️ Code-Konventionen & Best Practices
+1. Type Hints
+Alle Funktionen haben Type Hints: def load_config(self) -> Optional[dict]:
+
+Return-Types angeben: bool, dict, None, List[str]
+
+Parameter-Types: config: dict, app_path: str
+
+2. Docstrings (Google Style)
+python
+def load_config(self) -> Optional[dict]:
+    """Lade die config.json Datei.
+    
+    Returns:
+        dict: Konfiguration als Dictionary
+        None: Wenn Datei nicht existiert
+    """
+3. Konstanten (UPPER_CASE)
+Alle fixen Werte in config.py
+
+Pfade als Path-Objekte
+
+Default-Werte zentral definiert
+
+4. Private Methoden (_name)
+Hilfsmethoden mit Underscore: _validate_config(), _add_app()
+
+Signalisiert: "Nur interne Verwendung"
+
+5. Custom Exceptions
+Eigene Exception-Klasse für jeden Error-Typ
+
+Datei: exceptions.py
+
+Base Exception: TimeTrackerError
+
+Spezifische: ConfigError, DatabaseError, TrackerError
+
+6. Logging statt Print
+python
+logger = setup_logger(__name__)
+logger.info("Config geladen")
+logger.error("Fehler beim Laden")
+logger.warning("Warnung")
+logger.debug("Debug-Info")
+Logs gehen zu Console UND Datei (data/tracker.log)
+
+Alle kritischen Operationen geloggt
+
+Autostart-Modus: Nur Logs, keine Print-Statements
+
+7. Input Validation
+Alle Config-Daten validieren: _validate_config()
+
+User-Input checken: .strip(), nicht leer
+
+Type-Checks durchführen
+
+8. Encoding (UTF-8)
+python
+with open(file, 'r', encoding='utf-8') as f:
+Umlaute funktionieren überall
+
+Standard seit Python 3
+
+9. Separation of Concerns
+Jede .py Datei hat eine Aufgabe
+
+Config-Logik in config.py
+
+String-Logik in strings.py
+
+UI-Logik in app.py
+
+Tracker-Logik in tracker.py
+
+DB-Logik in database.py
+
+10. Fehlerbehandlung
+python
+try:
+    # Code
+except SpecificError as e:
+    logger.error(f"Error: {e}")
+    raise
+except Exception as e:
+    logger.error(f"Unexpected: {e}")
+11. Zentrale Texte (i18n-Ready)
+Alle UI-Texte in strings.py
+
+Class Messages mit Konstanten
+
+Einfach zu übersetzen später
+
+Kein hardcodiertes "Hallo test" im Code
+
+12. Klassen-basiert
+python
+class TimeTrackerApp:
+    def __init__(self):
+        self.config_path = CONFIG_PATH
+    
+    def method(self):
+        pass
+Alles in Klassen organisiert
+
+State wird in self gespeichert
+
+Keine globalen Variablen
+
+📁 Projekt-Struktur (Flat Layout)
+text
+TimeTracker/
+├── README.md                      # Dokumentation
+├── .gitignore                     # Git-Ignores (data/, __pycache__)
+├── .gitattributes                 # Git-Attribute
+├── requirements.txt               # Dependencies (pywin32, psutil)
+├── main.py                        # Einstiegspunkt (nur 15 Zeilen!)
+│
+├── timetracker/                   # Python Package
+│   ├── __init__.py               # Package-Definition
+│   ├── app.py                    # TimeTrackerApp Klasse (UI/Menu)
+│   ├── tracker.py                # AppTracker Klasse (Monitoring)
+│   ├── database.py               # Database Klasse (SQLite)
+│   ├── config.py                 # Konstanten & Konfiguration
+│   ├── strings.py                # Alle UI-Texte
+│   ├── exceptions.py             # Custom Exceptions
+│   └── logger_config.py          # Logging-Setup
+│
+└── data/                          # Runtime-Daten (nicht in Git)
+    ├── config.json               # User-Config (wird erstellt)
+    ├── tracker.db                # SQLite Database (wird erstellt)
+    └── tracker.log               # Log-Datei (wird erstellt)
+Warum Flat-Layout?
+Python-Standard (PEP 517)
+
+Nicht zu nested (einfacher als src-layout)
+
+Skalierbar
+
+PyInstaller-friendly
+
+⚙️ Features
+1. Initialisierung
+text
+Menu → "1. Initialisierung"
+   → Input: "chrome.exe,vscode.exe,notepad.exe"
+   → Erstellt data/config.json
+   → Erstellt data/tracker.db
+2. Multi-App Tracking
+Beliebig viele Apps gleichzeitig tracken
+
+Komma-getrennte Eingabe beim Setup
+
+Jede App einzeln geloggt in DB
+
+Separate Statistiken pro App
+
+3. Monitoring
+text
+Menu → "1. Tracking starten"
+   → Läuft im Hintergrund
+   → Prüft aktive Fenster alle 500ms
+   → Loggt Start/Stop in SQLite
+   → CTRL+C zum Beenden
+4. Statistiken (Pro App)
+text
+Menu → "2. Statistiken"
+   → HEUTE:
+      • Öffnungen: Xmal
+      • Gesamtzeit: Xh XXm
+      • Ø pro Öffnung: XXm
+   
+   → GESAMT:
+      • Öffnungen: Xmal
+      • Gesamtzeit: Xh XXm
+      • Erste Nutzung: TT.MM.JJJJ
+5. Settings (App-Management)
+text
+Menu → "3. Settings"
+   → Zeigt aktuelle Apps
+   → "1. App hinzufügen"    (komma-getrennt)
+   → "2. App entfernen"     (einzeln)
+   → "3. Apps anzeigen"
+   → "4. Zurück"
+6. Autostart-Integration
+text
+TimeTracker.exe                    # Manual: Menu
+TimeTracker.exe --autostart        # Autostart: Still tracking
+Erkennung via --autostart Parameter
+
+In Registry: HKEY_CURRENT_USER\...\Run
+
+Keine Console-Ausgabe im Autostart-Mode
+
+Nur Logging in Datei
+
+7. Datenbank (SQLite)
+sql
+CREATE TABLE app_sessions (
+    id INTEGER PRIMARY KEY,
+    app_name TEXT,
+    app_path TEXT,
+    start_time DATETIME,
+    end_time DATETIME,
+    duration_seconds INTEGER,
+    date DATE
+)
+Jede Session einzeln geloggt
+
+Aggregations-Queries für Stats
+
+Keine Duplikate
+
+8. Logging
+Console-Output (INFO Level)
+
+File-Output (data/tracker.log)
+
+Format: [TIMESTAMP] - [MODULE] - [LEVEL] - [MESSAGE]
+
+File-Logging für Autostart-Debugging
+
+🎯 Klassen-Übersicht
+1. TimeTrackerApp (app.py)
+Verantwortung: UI, Menu, Benutzerinteraktion
+
+cmd_initialize() - Erste Konfiguration
+
+cmd_run() - Starte Monitoring
+
+cmd_stats() - Zeige Statistiken
+
+cmd_settings() - App-Management
+
+load_config() - Lade Config
+
+save_config() - Speichere Config
+
+show_menu() - Interaktives Menu
+
+2. AppTracker (tracker.py)
+Verantwortung: Fenster-Monitoring, Aktivitäts-Logging
+
+start_monitoring() - Hauptschleife
+
+get_active_window_process() - Aktives Fenster erkennen
+
+is_target_app() - Prüfe ob App in Liste
+
+log_session() - Speichere Session
+
+3. Database (database.py)
+Verantwortung: SQLite-Operationen
+
+init_db() - Erstelle Tabelle
+
+log_session() - INSERT in DB
+
+get_stats_today() - SELECT für heute
+
+get_stats_all_time() - SELECT gesamt
+
+4. Messages (strings.py)
+Verantwortung: Alle UI-Texte
+
+Konstanten für alle Ausgaben
+
+Kein hardcoded "print("hallo")"
+
+Später einfach zu übersetzen
+
+5. Config (config.py)
+Verantwortung: Zentrale Konstanten
+
+CONFIG_PATH, DB_PATH, LOG_PATH
+
+DEFAULT_CONFIG
+
+Validierungs-Constraints
+
+6. Exceptions (exceptions.py)
+Verantwortung: Custom Error-Types
+
+TimeTrackerError (Base)
+
+ConfigError (Config-Probleme)
+
+DatabaseError (DB-Probleme)
+
+TrackerError (Monitoring-Probleme)
+
+7. Logger Config (logger_config.py)
+Verantwortung: Logging-Setup
+
+setup_logger() - Erstelle Logger
+
+Console + File Handler
+
+Consistent Format
+
+📊 Daten-Flow
+text
+FIRST RUN:
+User
+  ↓
+main.py
+  ↓
+TimeTrackerApp.show_menu()
+  ↓
+cmd_initialize()
+  ↓
+Input: "chrome.exe,vscode.exe"
+  ↓
+save_config() → data/config.json
+  ↓
+Database.init_db() → data/tracker.db
+text
+TRACKING RUN:
+User: "1. Tracking starten"
+  ↓
+load_config() ← data/config.json
+  ↓
+AppTracker.start_monitoring()
+  ↓
+While-Loop: Prüfe aktives Fenster
+  ↓
+Wenn App in Liste → log_session()
+  ↓
+Database.insert() → data/tracker.db
+text
+STATS RUN:
+User: "2. Statistiken"
+  ↓
+load_config()
+  ↓
+Für jede App:
+  ↓
+Database.get_stats_today()
+  ↓
+Database.get_stats_all_time()
+  ↓
+Formatiere & Print
+🔐 Sicherheit & Robustheit
+Aspekt	Implementierung
+Input Validation	_validate_config() prüft alle Keys
+Type Safety	Type Hints überall
+Error Handling	Try/Except mit spezifischen Exceptions
+Logging	Alle Fehler geloggt
+File Operations	UTF-8 Encoding, Exception-handling
+Path Security	Path-Objekte (plattformunabhängig)
+Config Validation	Liste nicht leer, nur Strings
+📝 Verwendung
+Erste Nutzung:
+bash
+python main.py
+→ 1 (Initialisierung)
+→ chrome.exe,vscode.exe,notepad.exe
+→ ✅ Config erstellt
+Tracking starten:
+bash
+python main.py
+→ 1 (Tracking starten)
+→ Läuft still im Hintergrund
+→ CTRL+C zum Beenden
+Statistiken ansehen:
+bash
+python main.py
+→ 2 (Statistiken)
+→ Zeigt alle Apps mit heute + gesamt
+Apps verwalten:
+bash
+python main.py
+→ 3 (Settings)
+→ 1 (App hinzufügen) oder 2 (entfernen)
+Autostart einrichten:
+text
+Registry: HKEY_CURRENT_USER\...\Run
+Value: C:\Pfad\TimeTracker.exe --autostart
+🚀 Nächste Optionale Features
+Feature	Aufwand	Nutzen
+Auto-Autostart via Settings	Niedrig	Komfort
+CSV-Export für Excel	Niedrig	Analyse
+Wochenstatistiken	Niedrig	Übersicht
+GUI mit PySimpleGUI	Mittel	Benutzerfreundlichkeit
+Echtzeit-Dashboard	Hoch	Monitoring
+Mehrsprachigkeit (i18n)	Mittel	Internationalisierung
+PyInstaller → .exe	Niedrig	Distribution
+✅ Checkliste Implementiert
+ Klassenbasiert (nicht funktional)
+
+ Type Hints überall
+
+ Google-Style Docstrings
+
+ Constants (UPPER_CASE)
+
+ Custom Exceptions
+
+ Logging (Console + File)
+
+ Zentrale Strings (i18n-ready)
+
+ Input Validation
+
+ UTF-8 Encoding
+
+ Separation of Concerns
+
+ Fehlerbehandlung
+
+ Multi-App Support
+
+ Autostart-Erkennung (--autostart Parameter)
+
+ Settings/App-Management
+
+ Statistiken (heute + gesamt)
+
+ SQLite Database
+
+ Flat-Layout (Python Standard)
+
+ Nur in main.py (clean entry point)
+
+Das ist deine production-ready Basis! 🚀
