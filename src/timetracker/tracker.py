@@ -10,9 +10,9 @@ import win32gui
 import win32process
 import psutil
 
-from exceptions import TrackerError
-from logger_config import setup_logger
-from database import Database
+from .exceptions import TrackerError
+from .logger_config import setup_logger
+from .database import Database
 
 logger = setup_logger(__name__)
 
