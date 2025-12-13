@@ -250,11 +250,13 @@ class TimeTrackerApp:
                     opens, total_sec, avg_sec = today_stats
                     hours = total_sec // 3600
                     minutes = (total_sec % 3600) // 60
+                    seconds = total_sec % 60
                     avg_min = int(avg_sec // 60) if avg_sec else 0
+                    avg_sec_remainder = int(avg_sec % 60) if avg_sec else 0
                     
                     print(Messages.STATS_OPENS.format(opens))
-                    print(Messages.STATS_TIME.format(hours, minutes))
-                    print(Messages.STATS_AVG.format(avg_min))
+                    print(Messages.STATS_TIME.format(hours, minutes, seconds))
+                    print(Messages.STATS_AVG.format(avg_min, avg_sec_remainder))
                 else:
                     print(Messages.STATS_NO_DATA)
                 
