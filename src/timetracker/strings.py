@@ -23,6 +23,12 @@ class Messages:
     MENU_SETTINGS = "3. Settings"
     MENU_EXIT = "4. Beenden"
     
+    # ========== SETTINGS MENU ==========
+    MENU_SETTINGS_ADD = "1. App hinzufügen"
+    MENU_SETTINGS_REMOVE = "2. App entfernen"
+    MENU_SETTINGS_BACK = "3. Zurück"
+
+    
     # ========== SUCCESS ==========
     MSG_SUCCESS_CONFIG = "✅ Config erstellt mit {} App(s)"
     MSG_SUCCESS_APP_ADDED = "✅ App hinzugefügt: {}"
