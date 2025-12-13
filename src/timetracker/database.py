@@ -44,6 +44,7 @@ class Database:
                 start_time DATETIME NOT NULL,
                 end_time DATETIME,
                 duration_seconds INTEGER,
+                total_duration_seconds INTEGER,
                 date DATE DEFAULT CURRENT_DATE
             )
         """)
@@ -51,8 +52,9 @@ class Database:
         conn.commit()
         conn.close()
     
-    def log_session(self, app_name: str, app_path: str, 
-                   start_time: datetime, end_time: datetime) -> None:
+    def log_session(self, app_name: str, app_path: str,
+               start_time: datetime, end_time: datetime,
+               focus_duration: int, total_duration: int) -> None:
         """Speichere eine App-Session in der DB.
         
         Args:
@@ -65,27 +67,27 @@ class Database:
             DatabaseError: Wenn Speichern fehlschlägt
         """
         try:
-            duration = int((end_time - start_time).total_seconds())
-            
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
             cursor.execute("""
                 INSERT INTO app_sessions 
-                (app_name, app_path, start_time, end_time, duration_seconds, date)
-                VALUES (?, ?, ?, ?, ?, DATE('now'))
-            """, (app_name, app_path, start_time, end_time, duration))
+                (app_name, app_path, start_time, end_time,
+                duration_seconds, total_duration_seconds, date)
+                VALUES (?, ?, ?, ?, ?, ?, DATE('now'))
+            """, (app_name, app_path, start_time, end_time,
+                focus_duration, total_duration))
             
             conn.commit()
             conn.close()
             
-            logger.info(f"Session geloggt: {app_name} ({duration}s)")
-        
+            logger.info(f"Session geloggt: {app_name} "
+                        f"(focus={focus_duration}s, total={total_duration}s)")
         except Exception as e:
             logger.error(f"Fehler beim Speichern der Session: {e}")
             raise DatabaseError(f"Session konnte nicht geloggt werden: {e}")
     
-    def get_stats_today(self, app_name: str) -> Optional[Tuple[int, int, float]]:
+    def get_stats_today(self, app_name: str) -> Optional[Tuple[int, int, int, float]]:
         """Hole Statistiken für heute.
         
         Args:
@@ -101,22 +103,21 @@ class Database:
             cursor.execute("""
                 SELECT 
                     COUNT(*) as opens,
-                    SUM(duration_seconds) as total_seconds,
-                    AVG(duration_seconds) as avg_seconds
+                    SUM(duration_seconds) as focus_seconds,
+                    SUM(total_duration_seconds) as total_seconds,
+                    AVG(duration_seconds) as avg_focus_seconds
                 FROM app_sessions
                 WHERE app_name = ? AND date = DATE('now')
             """, (app_name,))
             
             result = cursor.fetchone()
             conn.close()
-            
             return result
-        
         except Exception as e:
             logger.error(f"Fehler beim Abrufen der Heute-Stats: {e}")
             return None
     
-    def get_stats_all_time(self, app_name: str) -> Optional[Tuple[int, int, str]]:
+    def get_stats_all_time(self, app_name: str) -> Optional[Tuple[int, int, int, str]]:
         """Hole Gesamtstatistiken.
         
         Args:
@@ -132,7 +133,8 @@ class Database:
             cursor.execute("""
                 SELECT 
                     COUNT(*) as opens,
-                    SUM(duration_seconds) as total_seconds,
+                    SUM(duration_seconds) as focus_seconds,
+                    SUM(total_duration_seconds) as total_seconds,
                     MIN(start_time) as first_use
                 FROM app_sessions
                 WHERE app_name = ?
@@ -140,9 +142,7 @@ class Database:
             
             result = cursor.fetchone()
             conn.close()
-            
             return result
-        
         except Exception as e:
             logger.error(f"Fehler beim Abrufen der Gesamt-Stats: {e}")
             return None
