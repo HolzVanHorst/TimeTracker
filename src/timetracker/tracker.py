@@ -141,7 +141,7 @@ class AppTracker:
                 if is_active and not self.is_running:
                     self.is_running = True
                     self.start_time = datetime.now()
-                    self.app_name = process_name
+                    self.app_name = process_name.lower()
                     self.app_path = process_exe
                     
                     time_str = self.start_time.strftime('%H:%M:%S')
@@ -159,7 +159,7 @@ class AppTracker:
                     seconds = duration % 60
                     
                     self.db.log_session(
-                        self.app_name,
+                        self.app_name.lower(),
                         self.app_path,
                         self.start_time,
                         end_time
@@ -180,7 +180,7 @@ class AppTracker:
             if self.is_running and self.app_name and self.start_time:
                 end_time = datetime.now()
                 self.db.log_session(
-                    self.app_name,
+                    self.app_name.lower(),
                     self.app_path,
                     self.start_time,
                     end_time
