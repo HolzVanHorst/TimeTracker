@@ -45,23 +45,20 @@ class Messages:
     MSG_INFO_CONFIG_MISSING = "⚠️  Config nicht gefunden!\n"
     MSG_INFO_START = "▶️  Starte Monitoring für {} App(s)"
     MSG_INFO_RUNNING = "⏹️  CTRL+C zum Beenden"
-    
-    # ========== STATS ==========
+        
+    # ========== STATS MESSAGES ==========
     STATS_TODAY = "📅 HEUTE ({})"
     STATS_ALL = "📈 GESAMT"
     STATS_OPENS = "• Öffnungen: {}x"
-    STATS_TIME = "• Gesamtzeit: {}h {}m"
-    STATS_AVG = "• Ø pro Öffnung: {}m"
-    STATS_FIRST = "• Erste Nutzung: {}"
-    
-    # ========== STATS MESSAGES (DIESE HIER HINZUFÜGEN) ==========
-    STATS_TODAY = "📅 HEUTE ({})"
-    STATS_ALL = "📈 GESAMT"
-    STATS_OPENS = "• Öffnungen: {}x"
-    STATS_TIME = "• Gesamtzeit: {}h {}m"
-    STATS_AVG = "• Ø pro Öffnung: {}m"
+    STATS_TIME = "• Gesamtzeit: {}h {}m {}s"
+    STATS_AVG = "• Ø pro Öffnung: {}m {}s"
     STATS_FIRST = "• Erste Nutzung: {}"
     STATS_NO_DATA = "Keine Daten"
+    
+    # ========== AUTOSTART ==========
+    AUTOSTART_ENABLED = "✅ Aktiviert"
+    AUTOSTART_DISABLED = "❌ Deaktiviert"
+
     
     # ========== SEPARATOR ==========
     SEPARATOR = "=" * 60
