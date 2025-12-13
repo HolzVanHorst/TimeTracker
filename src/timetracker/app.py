@@ -5,12 +5,12 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from config import CONFIG_PATH, DEFAULT_CONFIG, AUTOSTART_PARAM
-from exceptions import ConfigError
-from logger_config import setup_logger
-from strings import Messages
-from database import Database
-from tracker import AppTracker
+from .config import CONFIG_PATH, DEFAULT_CONFIG, AUTOSTART_PARAM
+from .exceptions import ConfigError
+from .logger_config import setup_logger
+from .strings import Messages
+from .database import Database
+from .tracker import AppTracker
 
 logger = setup_logger(__name__)
 
