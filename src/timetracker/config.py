@@ -1,14 +1,22 @@
 """Konfiguration und Konstanten für TimeTracker."""
 
 from pathlib import Path
+import sys
 
 # ========== PFADE ==========
-BASE_DIR = Path(__file__).parent.parent.parent  # → TimeTracker/
+# Wenn das Programm als gefrorene EXE läuft (PyInstaller), speichern wir
+# die Daten im selben Ordner wie die ausführbare Datei. Andernfalls
+# verwenden wir die Projekt-Base.
+if getattr(sys, "frozen", False):
+    BASE_DIR = Path(sys.executable).parent
+else:
+    BASE_DIR = Path(__file__).parent.parent.parent  # → TimeTracker/
+
 SRC_DIR = BASE_DIR / "src"
 DATA_DIR = BASE_DIR / "data"
 
-# Stelle sicher, dass data/ existiert
-DATA_DIR.mkdir(exist_ok=True)
+# Stelle sicher, dass data/ existiert (inkl. übergeordnete Ordner)
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 CONFIG_PATH = DATA_DIR / "config.json"
 DB_PATH = DATA_DIR / "tracker.db"

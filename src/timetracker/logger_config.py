@@ -2,6 +2,7 @@
 
 import logging
 from .config import LOG_FORMAT, LOG_LEVEL, LOG_PATH
+from pathlib import Path
 
 
 def setup_logger(name: str) -> logging.Logger:
@@ -14,7 +15,7 @@ def setup_logger(name: str) -> logging.Logger:
         logging.Logger: Konfigurierter Logger
     """
     logger = logging.getLogger(name)
-    logger.setLevel(LOG_LEVEL)
+    logger.setLevel(logging.getLevelName(LOG_LEVEL))
     
     # Verhindere doppelte Handler
     if logger.handlers:
@@ -22,13 +23,15 @@ def setup_logger(name: str) -> logging.Logger:
     
     # Console Handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(LOG_LEVEL)
+    console_handler.setLevel(logging.getLevelName(LOG_LEVEL))
     formatter = logging.Formatter(LOG_FORMAT)
     console_handler.setFormatter(formatter)
     
     # File Handler
+    # Ensure log directory exists
+    Path(LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
     file_handler = logging.FileHandler(LOG_PATH, encoding='utf-8')
-    file_handler.setLevel(LOG_LEVEL)
+    file_handler.setLevel(logging.getLevelName(LOG_LEVEL))
     file_handler.setFormatter(formatter)
     
     # Handler hinzufügen

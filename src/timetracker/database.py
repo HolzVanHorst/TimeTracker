@@ -25,6 +25,8 @@ class Database:
         """
         self.db_path = Path(db_path)
         try:
+            # Ensure parent dir exists (important for frozen executables)
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
             self.init_db()
             logger.info(f"Database initialisiert: {self.db_path}")
         except Exception as e:
