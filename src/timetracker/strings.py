@@ -54,6 +54,15 @@ class Messages:
     STATS_AVG = "• Ø pro Öffnung: {}m"
     STATS_FIRST = "• Erste Nutzung: {}"
     
+    # ========== STATS MESSAGES (DIESE HIER HINZUFÜGEN) ==========
+    STATS_TODAY = "📅 HEUTE ({})"
+    STATS_ALL = "📈 GESAMT"
+    STATS_OPENS = "• Öffnungen: {}x"
+    STATS_TIME = "• Gesamtzeit: {}h {}m"
+    STATS_AVG = "• Ø pro Öffnung: {}m"
+    STATS_FIRST = "• Erste Nutzung: {}"
+    STATS_NO_DATA = "Keine Daten"
+    
     # ========== SEPARATOR ==========
     SEPARATOR = "=" * 60
     GOODBYE = "Auf Wiedersehen!"
