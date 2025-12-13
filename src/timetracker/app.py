@@ -268,9 +268,10 @@ class TimeTrackerApp:
                     opens, total_sec, first_use = all_stats
                     hours = total_sec // 3600
                     minutes = (total_sec % 3600) // 60
+                    seconds = total_sec % 60
                     
                     print(Messages.STATS_OPENS.format(opens))
-                    print(Messages.STATS_TIME.format(hours, minutes))
+                    print(Messages.STATS_TIME.format(hours, minutes, seconds))
                     print(Messages.STATS_FIRST.format(first_use[:10]))
                 else:
                     print(Messages.STATS_NO_DATA)
@@ -280,25 +281,33 @@ class TimeTrackerApp:
             logger.error(f"Fehler beim Abrufen der Statistiken: {e}")
     
     def cmd_settings(self) -> None:
-        """Bearbeite Settings (App-Management)."""
+        """Bearbeite Settings (App-Management + Autostart)."""
         config = self.load_config()
         if not config:
             print(Messages.MSG_ERROR_NO_CONFIG)
             return
+        
+        from .autostart import AutostartManager
         
         while True:
             print(f"\n{Messages.SEPARATOR}")
             print(f"  {Messages.HEADER_SETTINGS}")
             print(f"{Messages.SEPARATOR}\n")
             
-            # Zeige aktuelle Apps
+            # ========== AUTOSTART STATUS ==========
+            autostart_status = "✅ Aktiviert" if AutostartManager.is_enabled() else "❌ Deaktiviert"
+            print(f"🔄 Autostart: {autostart_status}\n")
+            
+            # ========== GETRACKTE APPS ==========
             print("📱 Getrackte Apps:")
             for i, app in enumerate(config['target_apps'], 1):
                 print(f"   {i}. {app}")
             
-            print(f"\n{Messages.MENU_SETTINGS_ADD}")
-            print(f"{Messages.MENU_SETTINGS_REMOVE}")
-            print(f"{Messages.MENU_SETTINGS_BACK}")
+            print(f"\n1. App hinzufügen")
+            print(f"2. App entfernen")
+            print(f"3. Autostart aktivieren")
+            print(f"4. Autostart deaktivieren")
+            print(f"5. Zurück")
             
             choice = input(f"\n{Messages.PROMPT_CHOICE}").strip()
             
@@ -307,9 +316,21 @@ class TimeTrackerApp:
             elif choice == "2":
                 self._remove_app(config)
             elif choice == "3":
+                if AutostartManager.enable():
+                    print("\n✅ Autostart aktiviert!")
+                    print("⚠️  Programm wird beim nächsten Start automatisch ausgeführt.")
+                else:
+                    print("\n❌ Fehler beim Aktivieren von Autostart")
+            elif choice == "4":
+                if AutostartManager.disable():
+                    print("\n✅ Autostart deaktiviert!")
+                else:
+                    print("\n❌ Fehler beim Deaktivieren von Autostart")
+            elif choice == "5":
                 break
             else:
                 print(Messages.MSG_ERROR_INVALID)
+
     
     def _add_app(self, config: dict) -> None:
         """Füge eine App zur Liste hinzu.
