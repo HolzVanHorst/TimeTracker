@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import Optional, Tuple
 from pathlib import Path
 
-from exceptions import DatabaseError
-from logger_config import setup_logger
+from .exceptions import DatabaseError
+from .logger_config import setup_logger
 
 logger = setup_logger(__name__)
 
