@@ -1,7 +1,7 @@
 """Logging-Konfiguration für TimeTracker."""
 
 import logging
-from config import LOG_FORMAT, LOG_LEVEL, LOG_PATH
+from .config import LOG_FORMAT, LOG_LEVEL, LOG_PATH
 
 
 def setup_logger(name: str) -> logging.Logger:
