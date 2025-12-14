@@ -27,7 +27,7 @@ Thumbs.db
 
 # Build
 build/
-dist/
+dist*
 *.egg-info/
 .eggs/
 
